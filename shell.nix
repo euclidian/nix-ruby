@@ -8,6 +8,13 @@ let
     rev = "001c0cbe54228f88d5634f431fcaf460b8ff4590";
   }) {});
   rubyVersionParse = import <nixpkgs/pkgs/development/interpreters/ruby/ruby-version.nix> { inherit lib; };
+  myLibxml2 = nixpkgsOld.libxml2.overrideAttrs (oldAttrs: rec {
+    version = "2.9.4";
+    src = fetchurl {
+      url = "http://xmlsoft.org/sources/${oldAttrs.pname}-${version}.tar.gz";
+      sha256 = "sha256-/7kRGR5Qm5Zt61XecFOH8UFW4aVrIYJDV83wBTIzYzw=";
+    };
+  });
   myRuby = nixpkgsOld.pkgs.ruby_2_5.overrideAttrs (oldAttrs: rec {
         version = rubyVersionParse "2" "5" "5" "";
         ver = version;
@@ -22,20 +29,20 @@ let
         docSupport = false;
         rubygemsSupport = false;
     });
-  env = bundlerEnv {
+  env = with nixpkgsOld; bundlerEnv {
     name = "nix-ruby-bundler-env";
     ruby = myRuby;
     gemfile  = ./project/Gemfile;
     lockfile = ./project/Gemfile.lock;
     gemset   = ./gemset.nix;
-    gemConfig = nixpkgsOld.defaultGemConfig // {
+    gemConfig = defaultGemConfig // {
       nokogiri = attrs: {
         buildFlags = [
           "--use-system-libraries"
           "--with-zlib-lib=${zlib.out}/lib"
           "--with-zlib-include=${zlib.dev}/include"
-          "--with-xml2-lib=${libxml2.out}/lib"
-          "--with-xml2-include=${libxml2.dev}/include/libxml2"
+          "--with-xml2-lib=${myLibxml2.out}/lib"
+          "--with-xml2-include=${myLibxml2.dev}/include/libxml2"
           "--with-xslt-lib=${libxslt.out}/lib"
           "--with-xslt-include=${libxslt.dev}/include"
           "--with-exslt-lib=${libxslt.out}/lib"

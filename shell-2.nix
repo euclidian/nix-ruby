@@ -14,13 +14,13 @@ let
     overlays = [ (import ./overlays.nix) ];
   });
   myRuby = nixpkgsOld.pkgs.ruby_2_5;
-  env = bundlerEnv {
+  env = with nixpkgsOld; bundlerEnv {
     name = "nix-ruby-bundler-env";
     ruby = myRuby;
     gemfile  = ./project/Gemfile;
     lockfile = ./project/Gemfile.lock;
     gemset   = ./gemset.nix;
-    gemConfig = nixpkgsOld.defaultGemConfig // {
+    gemConfig = defaultGemConfig // {
       nokogiri = attrs: {
         buildFlags = [
           "--use-system-libraries"
