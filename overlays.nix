@@ -16,5 +16,7 @@ self: super: {
                 useRailsExpress = false;
                 docSupport = false;
                 rubygemsSupport = false;
+                # buildInputs = oldAttrs.buildInputs ++ [super.libxml2];
+                # nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [super.libxml2];
             });
 }

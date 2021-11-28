@@ -24,10 +24,28 @@ let
     });
   env = bundlerEnv {
     name = "nix-ruby-bundler-env";
-    inherit myRuby;
+    ruby = myRuby;
     gemfile  = ./project/Gemfile;
     lockfile = ./project/Gemfile.lock;
     gemset   = ./gemset.nix;
+    gemConfig = nixpkgsOld.defaultGemConfig // {
+      nokogiri = attrs: {
+        buildFlags = [
+          "--use-system-libraries"
+          "--with-zlib-lib=${zlib.out}/lib"
+          "--with-zlib-include=${zlib.dev}/include"
+          "--with-xml2-lib=${libxml2.out}/lib"
+          "--with-xml2-include=${libxml2.dev}/include/libxml2"
+          "--with-xslt-lib=${libxslt.out}/lib"
+          "--with-xslt-include=${libxslt.dev}/include"
+          "--with-exslt-lib=${libxslt.out}/lib"
+          "--with-exslt-include=${libxslt.dev}/include"
+        ] ++ lib.optionals stdenv.isDarwin [
+          "--with-iconv-dir=${libiconv}"
+          "--with-opt-include=${libiconv}/include"
+        ];
+      };
+    };
   };
 in stdenv.mkDerivation {
   name = "nix-ruby";
